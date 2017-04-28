@@ -1,14 +1,16 @@
+"""This module contains the sprite class that controls rendering of a car.
+It defers decision making to the src.car.logic functions.
+"""
+
 import pygame
 import math
 
+from src.car import logic
+
 from pygame.sprite import Sprite
 
-
 class CarSprite(Sprite):
-    MAX_FORWARD_SPEED = 10
-    MAX_REVERSE_SPEED = 0
-    ACCELERATION = 2
-    TURN_SPEED = 5
+    """CarSprite is a pygame.Sprite subclass, and renders a car."""
 
     def __init__(self, image, position, screen):
         Sprite.__init__(self)
@@ -18,15 +20,23 @@ class CarSprite(Sprite):
         self.screen = screen
         self.speed = self.direction = 0
         self.lane = 0
-        self.k_left = self.k_right = self.k_down = self.k_up = 0
+        self.k_down = self.k_up = 0
+        self.image = None
+        self.rect = None
+        self.last_action = 0
+
 
     def update(self, deltat):
+        self.last_action += deltat
+        # Can set how often a car will take an action with this
+        if self.last_action > 2000:
+            self.last_action = 0
+
+        # Make decisions based on deltat
+        if deltat:
+            pass
         # Speed check
-        self.speed += (self.k_up + self.k_down)
-        if self.speed > self.MAX_FORWARD_SPEED:
-            self.speed = self.MAX_FORWARD_SPEED
-        if self.speed < 0:
-            self.speed = self.MAX_REVERSE_SPEED
+        self.speed = logic.calculate_speed(self.speed, self.k_up, self.k_down)
 
         # Only allowed to drive in one direction
         self.direction = 90
@@ -57,4 +67,3 @@ class CarSprite(Sprite):
         self.image = pygame.transform.rotate(self.src_image, self.direction)
         self.rect = self.image.get_rect()
         self.rect.center = self.position
-
